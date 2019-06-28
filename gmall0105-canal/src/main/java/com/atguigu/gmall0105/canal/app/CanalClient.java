@@ -20,6 +20,7 @@ public class CanalClient {
             canalConnector.subscribe(tables);
             Message message = canalConnector.get(100);
 
+
             int size = message.getEntries().size();
 
             if(size==0){
@@ -64,6 +65,7 @@ public class CanalClient {
 
 
             }
+
 
         }
 
