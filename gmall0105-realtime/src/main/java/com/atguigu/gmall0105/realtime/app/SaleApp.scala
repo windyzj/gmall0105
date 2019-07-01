@@ -4,12 +4,13 @@ import java.util
 
 import com.alibaba.fastjson.JSON
 import com.atguigu.gmall.constant.GmallConstants
-import com.atguigu.gmall0105.realtime.bean.{OrderDetail, OrderInfo, SaleDetail}
-import com.atguigu.gmall0105.realtime.util.{MyKafkaUtil, RedisUtil}
+import com.atguigu.gmall0105.realtime.bean.{OrderDetail, OrderInfo, SaleDetail, UserInfo}
+import com.atguigu.gmall0105.realtime.util.{MyEsUtil, MyKafkaUtil, RedisUtil}
 import org.apache.hadoop.conf.Configuration
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.phoenix.spark._
 import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.json4s.native.Serialization
@@ -17,6 +18,8 @@ import redis.clients.jedis.Jedis
 
 import scala.collection.mutable.ListBuffer
 import collection.JavaConversions._
+
+
 
 object SaleApp {
 
@@ -51,7 +54,7 @@ object SaleApp {
 
     val orderDetailWithKeyDstream: DStream[(String, OrderDetail)] = orderDetailDstream.map(orderdetail=>(orderdetail.order_id,orderdetail))
 
-
+  // 双流关联
      val fulljoinOrderDstream: DStream[(String, (Option[OrderInfo], Option[OrderDetail]))] = orderInfoWithKeyDstream.fullOuterJoin(orderDetailWithKeyDstream)
 
 
@@ -73,9 +76,17 @@ object SaleApp {
           val orderInfokey="order_info:"+orderInfo.id
           val orderInfoJson: String = Serialization.write(orderInfo)
           jedis.set(orderInfokey,orderInfoJson)
+          // 不管主表是否匹配上 ，依然要去缓存中查询是否有未匹配的从表
+          val orderDetailkey="order_detail:"+orderInfo.id
+          val orderDetailJsonSet: util.Set[String] = jedis.smembers(orderDetailkey)
+          for ( orderDetailJson<- orderDetailJsonSet ) {
+               val detail: OrderDetail = JSON.parseObject(orderDetailJson,classOf[OrderDetail])
+               val saleDetail = new SaleDetail(orderInfo, orderDetail)
+               saleDetailList += saleDetail
+          }
 
 
-        }else if(orderInfoOption != None&&orderDetailOption == None){ //2  主表有 ，从表没有
+        }else if(orderInfoOption != None&&orderDetailOption == None){ //2  主表有 ，从表没有  查询从表，保存自己
           val orderInfo: OrderInfo = orderInfoOption.get
           println("主表有+++，从表没有---:" + orderInfo.id)
           //  1 来早了  2 来晚了
@@ -101,7 +112,7 @@ object SaleApp {
           jedis.set(orderInfokey,orderInfoJson)
 
 
-        }else {  //3 主表没有，从表有
+        }else {  //3 主表没有，从表有      //查询主表    如果没查找 保存自己
           val orderDetail: OrderDetail = orderDetailOption.get
           println("  主表没有----，从表有+++: order_id:" + orderDetail.order_id +"||order_detail_id:"+orderDetail.id)
           //从表判断来早还是来晚了  通过查询主表的缓存
@@ -132,8 +143,52 @@ object SaleApp {
       jedis.close()
       saleDetailList.toIterator
     }
-    saleDetailDstream.foreachRDD{rdd=>
+    val fullSaleDetailDstream: DStream[SaleDetail] = saleDetailDstream.mapPartitions { saleIter =>
+      val jedis: Jedis = RedisUtil.getJedisClient
+      val userList: ListBuffer[SaleDetail] = ListBuffer[SaleDetail]()
+      for (saleDetail <- saleIter) {
+
+        val userInfoJson: String = jedis.hget("user_info", saleDetail.user_id)
+        val userinfo: UserInfo = JSON.parseObject(userInfoJson, classOf[UserInfo])
+        saleDetail.mergeUserInfo(userinfo)
+        userList += saleDetail
+      }
+      jedis.close()
+      userList.toIterator
+    }
+    fullSaleDetailDstream.foreachRDD{rdd=>
+      val saleDetailList: List[SaleDetail] = rdd.collect().toList
+      val saleDetailWithKeyList: List[(String, SaleDetail)] = saleDetailList.map(saleDetail=>(saleDetail.order_detail_id,saleDetail))
+      MyEsUtil.insertBulk(GmallConstants.ES_INDEX_SALE_DETAIL,saleDetailWithKeyList)
+
+    }
+
+
+ /*   saleDetailDstream.foreachRDD{rdd=>
       println(rdd.collect().mkString("\n"))
+    }*/
+
+
+
+
+
+
+    // 把userInfo 保存到缓存中
+
+    inputUserDstream.map{record=>
+         val userInfo: UserInfo = JSON.parseObject(record.value(), classOf[UserInfo])
+      userInfo
+    }.foreachRDD{rdd:RDD[UserInfo]=>
+      val userList: List[UserInfo] = rdd.collect().toList
+      val jedis: Jedis = RedisUtil.getJedisClient
+      implicit val formats=org.json4s.DefaultFormats
+      for (userInfo <- userList ) {   //  string  set list hash zset
+        //设计user_info  redis  type  hash      key   user_info  , field   user_id  ,value user_info_json
+        val userkey="user_info"
+        val userJson: String = Serialization.write(userInfo)
+        jedis.hset(userkey,userInfo.id,userJson)
+      }
+      jedis.close()
     }
 
 
