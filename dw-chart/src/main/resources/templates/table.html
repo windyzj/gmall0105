@@ -1,20 +1,20 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-      <meta charset="utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
-	<!-- Bootstrap Styles-->
+    <!-- Bootstrap Styles-->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
-     <!-- FontAwesome Styles-->
+    <!-- FontAwesome Styles-->
     <link href="assets/css/font-awesome.css" rel="stylesheet" />
-     <!-- Morris Chart Styles-->
-   
-        <!-- Custom Styles-->
+    <!-- Morris Chart Styles-->
+
+    <!-- Custom Styles-->
     <link href="assets/css/custom-styles.css" rel="stylesheet" />
-     <!-- Google Fonts-->
-   <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-     <!-- TABLE STYLES-->
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <!-- TABLE STYLES-->
     <link href="assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
     <!-- JS Scripts-->
     <!-- jQuery Js -->
@@ -126,24 +126,16 @@
                     }
                 },
                 "columns": [
+                    { "data": "order_detail_id" },
+                    { "data": "order_id" },
                     { "data": "user_id" },
                     { "data": "sku_id" },
                     { "data": "user_gender" },
                     { "data": "user_age" },
                     { "data": "user_level" },
-                    { "data": "order_price" },
+                    { "data": "sku_price" },
                     { "data": "sku_name" },
                     { "data": "sku_tm_id" },
-                    { "data": "sku_category1_id" },
-                    { "data": "sku_category2_id" },
-                    { "data": "sku_category3_id" },
-                    { "data": "sku_category1_name" },
-                    { "data": "sku_category2_name" },
-                    { "data": "sku_category3_name" },
-                    { "data": "spu_id" },
-                    { "data": "sku_num" },
-                    { "data": "order_count" },
-                    { "data": "order_amount" },
                     { "data": "dt" }
                 ]
             })
@@ -353,60 +345,60 @@
         </div>
 
     </nav>
-        <!-- /. NAV SIDE  -->
-        <div id="page-wrapper" >
-            <div id="page-inner">
-			 <div class="row">
-                    <div class="col-md-12">
-                        <h1 class="page-header">
-                            商品搜索详情
-                        </h1>
-                    </div>
-                </div> 
-                 <!-- /. ROW  -->
-                <div class="row">
-                    <div class="col-md-12">
-
-						<ol class="breadcrumb">
-                            <li>日期&nbsp;&nbsp;<input  name="entryDate" placeholder="请选择入职日期" id="blrz-entry-date-start" type="text" ></li>
-                            <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <select id="sel" hidden="hidden">
-                                    <option value="1">level1</option>
-                                    <option value="2">level2</option>
-                                    <option value="3">level3</option>
-                                    <option value="4">level4</option>
-                                    <option value="5">level5</option>
-                                    <option value="6">level6</option>
-                                    <option value="7">level7</option>
-                                    <option value="8">level8</option>
-                                    <option value="9">level9</option>
-                                    <option value="10">level10</option>
-                                </select>
-                            <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关键字&nbsp;&nbsp;<input  name="entryDate" id="tex" type="text" ></li>
-                            <li>&nbsp;&nbsp;&nbsp;&nbsp;<button id="sub" onclick="submitCondition()">查询</button></li>
-                            </li>
-                        </ol>
-                    </div>
+    <!-- /. NAV SIDE  -->
+    <div id="page-wrapper" >
+        <div id="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="page-header">
+                        商品搜索详情
+                    </h1>
                 </div>
-                <div class="row">
+            </div>
+            <!-- /. ROW  -->
+            <div class="row">
+                <div class="col-md-12">
 
-                    <div class="col-md-6 col-sm-12 col-xs-12">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <div id="main1" style="width:500px;height:300px;"></div>
-                            </div>
+                    <ol class="breadcrumb">
+                        <li>日期&nbsp;&nbsp;<input  name="entryDate" placeholder="请选择入职日期" id="blrz-entry-date-start" type="text" ></li>
+                        <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <select id="sel" hidden="hidden">
+                                <option value="1">level1</option>
+                                <option value="2">level2</option>
+                                <option value="3">level3</option>
+                                <option value="4">level4</option>
+                                <option value="5">level5</option>
+                                <option value="6">level6</option>
+                                <option value="7">level7</option>
+                                <option value="8">level8</option>
+                                <option value="9">level9</option>
+                                <option value="10">level10</option>
+                            </select>
+                        <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关键字&nbsp;&nbsp;<input  name="entryDate" id="tex" type="text" ></li>
+                        <li>&nbsp;&nbsp;&nbsp;&nbsp;<button id="sub" onclick="submitCondition()">查询</button></li>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div id="main1" style="width:500px;height:300px;"></div>
                         </div>
                     </div>
-                    <div class="col-md-6 col-sm-12 col-xs-12">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <div id="main2" style="width:500px;height:300px;"></div>
-                            </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div id="main2" style="width:500px;height:300px;"></div>
                         </div>
                     </div>
-
                 </div>
-               
+
+            </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
@@ -416,38 +408,30 @@
                             <div class="table-responsive">
                                 <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                     <thead>
-                                        <tr>
-                                            <th>user_id</th>
-                                            <th>sku_id</th>
-                                            <th>user_gender</th>
-                                            <th>user_age</th>
-                                            <th>user_level</th>
-                                            <th>order_price</th>
-                                            <th>sku_name</th>
-                                            <th>sku_tm_id</th>
-                                            <th>sku_category1_id</th>
-                                            <th>sku_category2_id</th>
-                                            <th>sku_category3_id</th>
-                                            <th>sku_category1_name</th>
-                                            <th>sku_category2_name</th>
-                                            <th>sku_category3_name</th>
-                                            <th>spu_id</th>
-                                            <th>sku_num</th>
-                                            <th>order_count</th>
-                                            <th>order_amount</th>
-                                            <th>dt</th>
-                                        </tr>
+                                    <tr>
+                                        <th>order_detail_id</th>
+                                        <th>order_id</th>
+                                        <th>sku_price</th>
+                                        <th>user_id</th>
+                                        <th>sku_id</th>
+                                        <th>user_gender</th>
+                                        <th>user_age</th>
+                                        <th>user_level</th>
+                                        <th>sku_name</th>
+                                        <th>create_time</th>
+                                        <th>dt</th>
+                                    </tr>
                                     </thead>
                                 </table>
                             </div>
-                            
+
                         </div>
                     </div>
                     <!--End Advanced Tables -->
                 </div>
             </div>
 
-            </div>
+        </div>
     </div>
 </div>
 </body>

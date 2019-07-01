@@ -6,6 +6,7 @@ import com.atguigu.gmall.constant.GmallConstants;
 import com.atguigu.gmall0105.canal.util.MyKafkaSender;
 
 import java.util.List;
+import java.util.Random;
 
 import static com.atguigu.gmall0105.canal.util.MyKafkaSender.kafkaProducer;
 
@@ -26,6 +27,8 @@ public class CanalHandler {
                 sendRowList2Kafka(GmallConstants.KAFKA_TOPIC_ORDER);
             }else if((eventType.equals(CanalEntry.EventType.INSERT)||eventType.equals(CanalEntry.EventType.UPDATE))&&tableName.equals("user_info")){
                 sendRowList2Kafka(GmallConstants.KAFKA_TOPIC_USER);
+            }else if(eventType.equals(CanalEntry.EventType.INSERT)&&tableName.equals("order_detail")){
+                sendRowList2Kafka(GmallConstants.KAFKA_TOPIC_ORDER_DETAIL);
             }
 
     }
@@ -40,7 +43,11 @@ public class CanalHandler {
                 System.out.println(column.getName()+"--->"+column.getValue());
                 jsonObject.put(column.getName(),column.getValue());
             }
-
+            try {
+                Thread.sleep(new Random().nextInt(5)*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             MyKafkaSender.send(kafkaTopic,jsonObject.toJSONString());
         }
 

@@ -36,6 +36,8 @@ object OrderApp {
       // 增加一个字段 标识是否是用户首次下单
     }
 
+
+
     //保存到hbase
     orderInfoDstream.foreachRDD{rdd=>
 

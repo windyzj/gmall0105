@@ -6,6 +6,7 @@ import java.util.Objects
 import io.searchbox.client.{JestClient, JestClientFactory}
 import io.searchbox.client.config.HttpClientConfig
 import io.searchbox.core.{Bulk, BulkResult, Index}
+import collection.JavaConversions._
 
 object MyEsUtil {
   private val ES_HOST = "http://hadoop1"
@@ -58,9 +59,23 @@ object MyEsUtil {
         bulkBuilder.addAction(index)
       }
       val bulk: Bulk = bulkBuilder.build()
-      val items: util.List[BulkResult#BulkResultItem] = jest.execute( bulk).getItems
-      println("保存"+items.size()+"条到ES!")
-      close(jest)
+      var items: util.List[BulkResult#BulkResultItem] = null
+      try {
+        items = jest.execute(bulkBuilder.build()).getItems
+
+      } catch {
+        case ex: Exception => println(ex.toString)
+      } finally {
+        close(jest)
+        println("保存" + items.size() + "条数据")
+        for (item <- items) {
+          if (item.error != null && item.error.nonEmpty) {
+            println(item.error)
+            println(item.errorReason)
+          }
+        }
+
+      }
     }
   }
 

@@ -129,6 +129,8 @@ object DauApp {
       rdd.saveToPhoenix("GMALL0105_DAU",Seq("MID", "UID", "APPID", "AREA", "OS", "CH", "TYPE", "VS", "LOGDATE", "LOGHOUR", "TS") ,new Configuration,Some("hadoop1,hadoop2,hadoop3:2181"))
     }
 
+
+
     ssc.start()
     ssc.awaitTermination()
 
